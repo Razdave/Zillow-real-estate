@@ -1,0 +1,6 @@
+{
+  "name": "Zillow Real Estate Search",
+  "description": "Map-based real estate search platform featuring interactive property listings, advanced filters, Zestimate valuations, mortgage calculators, and neighborhood insights.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
