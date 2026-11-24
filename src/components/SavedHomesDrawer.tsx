@@ -162,7 +162,7 @@ export const SavedHomesDrawer: React.FC<SavedHomesDrawerProps> = ({
                   <Bookmark className="w-8 h-8 text-slate-300 mx-auto" />
                   <p className="text-sm font-semibold text-slate-800">No saved searches</p>
                   <p className="text-xs text-slate-500">
-                    Use "Save search" in the filter bar to store your price, bed, and map criteria.
+                    Use "Save search" in the filter bar to store your price, bed, and location criteria.
                   </p>
                 </div>
               ) : (

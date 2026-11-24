@@ -172,12 +172,11 @@ export const ZillowUtilityModal: React.FC<ZillowUtilityModalProps> = ({
               </div>
               <div className="p-3.5 rounded-xl border border-slate-200 space-y-1">
                 <div className="font-bold text-slate-900">
-                  How do map bounds &amp; advanced filters work?
+                  How do I narrow my search?
                 </div>
                 <p className="text-slate-600">
-                  Panning or zooming the interactive Google Map updates visible listings when map
-                  area filtering is enabled. Use Price, Beds &amp; Baths, Home Type, and More
-                  filters to narrow down results.
+                  Type a city, street or ZIP in the search bar, then use Price, Beds &amp; Baths, Home Type
+                  and More to filter the results.
                 </p>
               </div>
               <div className="p-3.5 rounded-xl border border-slate-200 space-y-1">

@@ -1,11 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { APIProvider } from '@vis.gl/react-google-maps';
-import { ArrowLeft, ArrowUpDown, List, Map as MapIcon } from 'lucide-react';
+import { ArrowLeft, ArrowUpDown } from 'lucide-react';
 import { AgentFinderView } from './components/AgentFinderView';
 import { HomeLoansView } from './components/HomeLoansView';
 import { PropertyCard } from './components/PropertyCard';
 import { PropertyDetailModal } from './components/PropertyDetailModal';
-import { PropertyMap } from './components/PropertyMap';
 import { SavedHomesDrawer } from './components/SavedHomesDrawer';
 import { SearchFilterBar } from './components/SearchFilterBar';
 import { SellZestimateView } from './components/SellZestimateView';
@@ -17,18 +16,12 @@ import { DEFAULT_FILTERS, MARKET_HUBS, PROPERTIES } from './data/properties';
 import {
   AppSection,
   FilterState,
-  MapBoundsLiteral,
   Property,
   SavedSearch,
   SortOption,
   TourRequest,
 } from './types/realEstate';
 import { filterProperties } from './utils/propertyFilters';
-
-const NATIONAL_CAMERA = {
-  center: { lat: 33.85, lng: -80.9 },
-  zoom: 7,
-};
 
 export default function App() {
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
@@ -37,18 +30,14 @@ export default function App() {
   const [activeSection, setActiveSection] = useState<AppSection>('home');
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
   const [searchQuery, setSearchQuery] = useState('');
-  const [locationLabel, setLocationLabel] = useState('South Carolina');
+  const searchHub = MARKET_HUBS.find((h) => h.city.toLowerCase() === searchQuery.trim().toLowerCase());
+  const locationLabel = searchHub
+    ? `${searchHub.city}, ${searchHub.state}`
+    : searchQuery.trim() || 'South Carolina';
 
-  const [cameraTarget, setCameraTarget] = useState({
-    center: NATIONAL_CAMERA.center,
-    zoom: NATIONAL_CAMERA.zoom,
-    nonce: 0,
-  });
-  const [mapBounds, setMapBounds] = useState<MapBoundsLiteral | null>(null);
 
   const [hoveredPropertyId, setHoveredPropertyId] = useState<string | null>(null);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
-  const [mobileViewMode, setMobileViewMode] = useState<'split' | 'map' | 'list'>('split');
 
   // Saved Homes, Hidden Homes, Saved Searches, Scheduled Tours, Account & Utility Modals
   const [savedIds, setSavedIds] = useState<string[]>(['prop-sea-1', 'prop-sf-1']);
@@ -79,8 +68,8 @@ export default function App() {
   const savedSet = useMemo(() => new Set(savedIds), [savedIds]);
 
   const filteredProperties = useMemo(
-    () => filterProperties(PROPERTIES, filters, searchQuery, mapBounds, hiddenSet),
-    [filters, searchQuery, mapBounds, hiddenSet]
+    () => filterProperties(PROPERTIES, filters, searchQuery, null, hiddenSet),
+    [filters, searchQuery, hiddenSet]
   );
 
   const savedProperties = useMemo(
@@ -116,7 +105,7 @@ export default function App() {
         searchInBounds: false,
       }));
       if (patch.status) {
-        setLocationLabel('South Carolina');
+        setSearchQuery('');
       }
     },
     []
@@ -128,7 +117,6 @@ export default function App() {
 
   const handleResetFilters = useCallback(() => {
     setSearchQuery('');
-    setLocationLabel('South Carolina');
     setFilters((prev) => ({
       ...DEFAULT_FILTERS,
       status: prev.status,
@@ -139,49 +127,23 @@ export default function App() {
     const hub = MARKET_HUBS.find((h) => h.id === hubId);
     if (!hub) return;
     setActiveSection((prev) => (prev === 'rent' ? 'rent' : 'buy'));
-    setLocationLabel(`${hub.city}, ${hub.state}`);
-    setSearchQuery('');
-    setCameraTarget((prev) => ({
-      center: hub.center,
-      zoom: hub.zoom,
-      nonce: prev.nonce + 1,
-    }));
-  }, []);
-
-  const handleResetNationalView = useCallback(() => {
-    setLocationLabel('South Carolina');
-    setSearchQuery('');
-    setMapBounds(null);
-    setCameraTarget((prev) => ({
-      center: NATIONAL_CAMERA.center,
-      zoom: NATIONAL_CAMERA.zoom,
-      nonce: prev.nonce + 1,
-    }));
+    setSearchQuery(hub.city);
   }, []);
 
   const handlePlaceViewportSelected = useCallback(
     (
-      location: { lat: number; lng: number },
-      bounds: { north: number; south: number; east: number; west: number } | null,
+      _location: { lat: number; lng: number },
+      _bounds: { north: number; south: number; east: number; west: number } | null,
       label: string
     ) => {
-      setLocationLabel(label);
+      setSearchQuery(label.split(',')[0]);
       setActiveSection('buy');
-      if (bounds) {
-        setMapBounds(bounds);
-      }
-      setCameraTarget((prev) => ({
-        center: location,
-        zoom: 12,
-        nonce: prev.nonce + 1,
-      }));
     },
     []
   );
 
   const handleHeroSearchSubmit = useCallback((q: string) => {
     setSearchQuery(q);
-    setLocationLabel(q);
     setFilters((prev) => ({
       ...prev,
       status: 'for_sale',
@@ -198,7 +160,7 @@ export default function App() {
       priceMax: maxPrice,
       searchInBounds: false,
     }));
-    setLocationLabel('South Carolina');
+    setSearchQuery('');
     setActiveSection('buy');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
@@ -231,17 +193,12 @@ export default function App() {
   const handleApplySavedSearch = useCallback((search: SavedSearch) => {
     setFilters(search.filters);
     setActiveSection(search.filters.status === 'for_rent' ? 'rent' : 'buy');
-    setLocationLabel(search.locationLabel);
     const matchedHub = MARKET_HUBS.find((h) =>
       search.locationLabel.toLowerCase().includes(h.city.toLowerCase())
     );
-    if (matchedHub) {
-      setCameraTarget((prev) => ({
-        center: matchedHub.center,
-        zoom: matchedHub.zoom,
-        nonce: prev.nonce + 1,
-      }));
-    }
+    setSearchQuery(
+      matchedHub?.city ?? (search.locationLabel === 'South Carolina' ? '' : search.locationLabel)
+    );
   }, []);
 
   const handleSubmitTour = useCallback((tour: Omit<TourRequest, 'id' | 'createdAt'>) => {
@@ -253,7 +210,7 @@ export default function App() {
     setTourRequests((prev) => [record, ...prev]);
   }, []);
 
-  const isMapSearchActive = activeSection === 'buy' || activeSection === 'rent';
+  const isSearchActive = activeSection === 'buy' || activeSection === 'rent';
 
   return (
     <APIProvider
@@ -311,8 +268,8 @@ export default function App() {
           </main>
         )}
 
-        {/* Buy / Rent Map Search Workspace */}
-        {isMapSearchActive && (
+        {/* Buy / Rent Search */}
+        {isSearchActive && (
           <>
             <SearchFilterBar
               filters={filters}
@@ -326,66 +283,9 @@ export default function App() {
               onSaveSearch={handleSaveSearch}
             />
 
-            {/* Mobile Map / List Switcher */}
-            <div className="lg:hidden px-4 py-2 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-700 tabular-nums">
-                {filteredProperties.length} results in {locationLabel}
-              </span>
-              <div className="inline-flex rounded-lg border border-slate-300 bg-white p-0.5">
-                <button
-                  type="button"
-                  onClick={() => setMobileViewMode('map')}
-                  className={`px-2.5 py-1 text-xs font-semibold rounded-md inline-flex items-center gap-1 cursor-pointer ${
-                    mobileViewMode === 'map' ? 'bg-[#006AFF] text-white' : 'text-slate-700'
-                  }`}
-                >
-                  <MapIcon className="w-3.5 h-3.5" />
-                  <span>Map</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setMobileViewMode('list')}
-                  className={`px-2.5 py-1 text-xs font-semibold rounded-md inline-flex items-center gap-1 cursor-pointer ${
-                    mobileViewMode === 'list' ? 'bg-[#006AFF] text-white' : 'text-slate-700'
-                  }`}
-                >
-                  <List className="w-3.5 h-3.5" />
-                  <span>List</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Split-Screen Interactive Map & Property Listings */}
-            <main className="grid grid-cols-1 lg:grid-cols-12 lg:h-[calc(100vh-120px)] min-h-[600px] border-b border-slate-200">
-              {/* Left: Interactive Google Map */}
-              <div
-                className={`lg:col-span-6 xl:col-span-7 h-[420px] lg:h-full relative ${
-                  mobileViewMode === 'list' ? 'hidden lg:block' : 'block'
-                }`}
-              >
-                <PropertyMap
-                  properties={filteredProperties}
-                  hoveredPropertyId={hoveredPropertyId}
-                  selectedPropertyId={selectedProperty?.id ?? null}
-                  cameraTarget={cameraTarget}
-                  searchInBounds={filters.searchInBounds}
-                  onToggleSearchInBounds={(enabled) =>
-                    handleUpdateFilters({ searchInBounds: enabled })
-                  }
-                  onBoundsChange={setMapBounds}
-                  onHoverProperty={setHoveredPropertyId}
-                  onSelectProperty={setSelectedProperty}
-                  onResetNationalView={handleResetNationalView}
-                  onSelectCityHub={handleSelectCityHub}
-                />
-              </div>
-
-              {/* Right: Scrollable Listings Panel */}
-              <div
-                className={`lg:col-span-6 xl:col-span-5 lg:h-full lg:overflow-y-auto listing-scroll bg-white border-l border-slate-200 ${
-                  mobileViewMode === 'map' ? 'hidden lg:block' : 'block'
-                }`}
-              >
+            {/* Property Listings */}
+            <main className="flex-1 border-b border-slate-200">
+              <div className="max-w-[1400px] mx-auto bg-white">
                 <div className="p-4 sm:p-5 space-y-4">
                   {/* Results Header & Sort */}
                   <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100">
@@ -450,22 +350,12 @@ export default function App() {
                   {filteredProperties.length === 0 ? (
                     <div className="py-16 px-4 text-center space-y-3 border border-dashed border-slate-200 rounded-xl bg-slate-50">
                       <p className="text-base font-bold text-slate-900">
-                        No matching homes in this map area
+                        No matching homes
                       </p>
                       <p className="text-xs text-slate-600 max-w-sm mx-auto">
-                        Try zooming out, turning off map area filtering, or clearing some active
-                        filters.
+                        Try another city or clear some active filters.
                       </p>
                       <div className="flex flex-wrap justify-center gap-2 pt-2">
-                        {filters.searchInBounds && (
-                          <button
-                            type="button"
-                            onClick={() => handleUpdateFilters({ searchInBounds: false })}
-                            className="px-4 py-2 text-xs font-semibold text-white bg-[#006AFF] hover:bg-[#0051C3] rounded-lg cursor-pointer"
-                          >
-                            Show all South Carolina listings
-                          </button>
-                        )}
                         <button
                           type="button"
                           onClick={handleResetFilters}
@@ -476,7 +366,7 @@ export default function App() {
                       </div>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                       {filteredProperties.map((property) => (
                         <PropertyCard
                           key={property.id}
