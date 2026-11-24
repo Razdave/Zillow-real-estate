@@ -21,6 +21,8 @@ interface Seed {
   description: string;
   special: string[];
   hoa?: number;
+  testPaidPct?: number;
+  testBuyer?: string;
 }
 
 // Fictional sample homes. Photos are public-domain/CC0 and do not show the listed addresses.
@@ -31,9 +33,9 @@ const SEEDS: Seed[] = [
   { id: 'more-ranch', type: 'house', style: 'Ranch', photo: 'ranch', price: 289000, rent: 1550, beds: 3, baths: 2, sqft: 1720, lot: 10400, year: 1962, stories: 1, days: 9,
     place: ['5508 Sample Mesa Dr', 'Columbia', 'SC', '29205', 'Earlewood', 'Richland County', 34.0000, -80.9940],
     headline: 'Wide single-level ranch on a large lot', description: 'Long, low ranch home with three bedrooms along one hall, a family room at the back and a deep lawn.', special: ['Single level', 'Large lot', 'Attached garage'] },
-  { id: 'more-bungalow', type: 'house', style: 'Bungalow', photo: 'bungalow', price: 264000, rent: 1500, beds: 3, baths: 1.5, sqft: 1460, lot: 4100, year: 1924, stories: 1, days: 3,
+  { id: 'more-bungalow', type: 'house', subtype: 'pending', testPaidPct: 50, style: 'Bungalow', photo: 'bungalow', price: 264000, rent: 1500, beds: 3, baths: 1.5, sqft: 1460, lot: 4100, year: 1924, stories: 1, days: 3,
     place: ['3640 N Sample Ave', 'Spartanburg', 'SC', '29302', 'Converse Heights', 'Spartanburg County', 34.9620, -81.9460],
-    headline: 'Gabled bungalow with a deep front porch', description: 'Compact three-bedroom bungalow with a broad porch, separate dining room and fenced back garden.', special: ['Front porch', 'Dining room', 'Fenced garden'] },
+    headline: 'Reserved (test): Gabled bungalow with a deep front porch', description: 'Compact three-bedroom bungalow with a broad porch, separate dining room and fenced back garden.', special: ['Front porch', 'Dining room', 'Fenced garden'] },
   { id: 'more-traditional', type: 'house', style: 'Colonial Revival', photo: 'colonial', price: 415000, rent: 2350, beds: 4, baths: 2.5, sqft: 2480, lot: 6200, year: 1908, stories: 3, days: 12,
     place: ['2219 W Sample St', 'Spartanburg', 'SC', '29302', 'Downtown', 'Spartanburg County', 34.9790, -81.9250],
     headline: 'Three-level traditional home with a wraparound porch', description: 'Older home with tall windows, four bedrooms upstairs, a finished top floor and generous porch space.', special: ['Wide porch', 'Finished top floor', 'Tall windows'] },
@@ -66,7 +68,7 @@ const toProperty = (s: Seed, i: number): Property => {
   const perSqft = s.sqft && !isRent ? Math.round(s.price / s.sqft) : undefined;
   return {
     id: s.id, mlsId: `SAMPLE-${1001 + i}`, status: s.status ?? 'for_sale', saleSubtype: s.subtype ?? 'standard', homeType: s.type,
-    price: s.price, zestimate: 0, rentZestimate: s.rent, beds: s.beds, baths: s.baths, sqft: s.sqft, lotSqft: s.lot, yearBuilt: s.year,
+    price: s.price, testPaidPct: s.testPaidPct, testBuyer: s.testBuyer, zestimate: 0, rentZestimate: s.rent, beds: s.beds, baths: s.baths, sqft: s.sqft, lotSqft: s.lot, yearBuilt: s.year,
     stories: s.stories, garageSpaces: isLot || isApartment ? 0 : 1, parkingSpaces: isLot ? 0 : 1, hoaFee: s.hoa ?? 0,
     propertyTaxAnnual: tax, taxAssessedValue: isRent ? 0 : Math.round(s.price * 0.92), daysOnMarket: s.days,
     viewsCount: 180 + i * 37, savesCount: 12 + i * 3,

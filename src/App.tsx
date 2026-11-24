@@ -40,7 +40,7 @@ export default function App() {
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
 
   // Saved Homes, Hidden Homes, Saved Searches, Scheduled Tours, Account & Utility Modals
-  const [savedIds, setSavedIds] = useState<string[]>(['prop-sea-1', 'prop-sf-1']);
+  const [savedIds, setSavedIds] = useState<string[]>(['prop-sf-1']);
   const [hiddenIds, setHiddenIds] = useState<string[]>([]);
   const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([
     {

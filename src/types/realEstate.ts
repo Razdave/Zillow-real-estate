@@ -70,6 +70,7 @@ export interface Property {
   rentZestimate: number;
   priceChange?: number;
   testPaidPct?: number;
+  testBuyer?: string;
   beds: number;
   baths: number;
   sqft: number;

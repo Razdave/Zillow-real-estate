@@ -10,6 +10,7 @@ export const TestReservation: React.FC<{ property: Property }> = ({ property }) 
   return (
     <div role="note" className="my-2 p-3 rounded-lg border-2 border-dashed border-amber-600 bg-amber-50 text-xs text-amber-950">
       <strong className="block">TEST DATA: no real payment</strong>
+      {property.testBuyer && <span className="block mt-1">Reserved for {property.testBuyer} (test buyer)</span>}
       <span className="block mt-1">Reserved, {pct}% paid: {formatCurrency(paid)} of {formatCurrency(property.price)}</span>
       <span className="block mt-2 h-2 rounded bg-amber-200 overflow-hidden">
         <span className="block h-full bg-amber-600" style={{ width: `${pct}%` }} />
