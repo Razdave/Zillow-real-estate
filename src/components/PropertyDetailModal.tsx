@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { TestReservation } from './TestReservation';
 import { useMap, useMapsLibrary } from '@vis.gl/react-google-maps';
 import {
   ArrowLeft,
@@ -82,17 +83,7 @@ export const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({
 
   // Google Maps Routes Commute Calculator
   const [commuteDest, setCommuteDest] = useState(
-    property.city === 'Seattle'
-      ? 'Downtown Seattle, WA'
-      : property.city === 'San Francisco'
-      ? 'Financial District, San Francisco, CA'
-      : property.city === 'Austin'
-      ? 'Downtown Austin, TX'
-      : property.city === 'New York'
-      ? 'Midtown Manhattan, NY'
-      : property.city === 'Miami'
-      ? 'Brickell City Centre, Miami, FL'
-      : 'Chicago Loop, Chicago, IL'
+    `Downtown ${property.city}, SC`
   );
   const [commuteResult, setCommuteResult] = useState<{
     durationText: string;
@@ -607,6 +598,8 @@ export const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({
                   <span aria-hidden="true">·</span>
                   <span>{property.savesCount} saves</span>
                 </div>
+
+                <TestReservation property={property} />
 
                 {property.openHouse && (
                   <div className="mt-4 p-3 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-between text-xs">

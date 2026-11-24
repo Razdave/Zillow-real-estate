@@ -127,8 +127,8 @@ export function filterProperties(
     }
 
     if (q) {
-      const searchable = `${p.street} ${p.unit || ''} ${p.city} ${p.state} ${p.zip} ${p.neighborhood} ${p.mlsId}`.toLowerCase();
-      // If query includes city/state comma e.g. "Seattle, WA", check tokens
+      const searchable = `${p.street} ${p.unit || ''} ${p.city} ${p.state} ${p.state === 'SC' ? 'South Carolina' : ''} ${p.zip} ${p.neighborhood} ${p.mlsId}`.toLowerCase();
+      // If query includes city/state comma e.g. "Charleston, SC", check tokens
       const tokens = q.split(/[\s,]+/).filter(Boolean);
       const allMatch = tokens.every((t) => searchable.includes(t));
       if (!allMatch) return false;

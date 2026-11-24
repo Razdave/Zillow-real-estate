@@ -10,6 +10,7 @@ import {
   useMap,
 } from '@vis.gl/react-google-maps';
 import { Compass, Layers, Train, X } from 'lucide-react';
+import { StreetMap } from './StreetMap';
 import { MARKET_HUBS } from '../data/properties';
 import { MapBoundsLiteral, Property } from '../types/realEstate';
 import { formatCompactPrice, formatCurrency } from '../utils/propertyFilters';
@@ -163,6 +164,10 @@ export const PropertyMap: React.FC<PropertyMapProps> = ({
   onSelectCityHub,
 }) => {
   const loadingStatus = useApiLoadingStatus();
+  const useStreetMap =
+    !import.meta.env.VITE_GOOGLE_MAPS_API_KEY ||
+    loadingStatus === APILoadingStatus.FAILED ||
+    loadingStatus === APILoadingStatus.AUTH_FAILURE;
   const [mapType, setMapType] = useState<'roadmap' | 'satellite' | 'hybrid' | 'terrain'>('roadmap');
   const [showTransit, setShowTransit] = useState(false);
   const [showLayersMenu, setShowLayersMenu] = useState(false);
@@ -202,17 +207,15 @@ export const PropertyMap: React.FC<PropertyMapProps> = ({
 
   return (
     <div className="relative w-full h-full bg-slate-100">
-      {loadingStatus === APILoadingStatus.FAILED ||
-      loadingStatus === APILoadingStatus.AUTH_FAILURE ? (
-        <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-slate-50">
-          <p className="text-sm font-semibold text-slate-900 mb-1">
-            Interactive map unavailable right now
-          </p>
-          <p className="text-xs text-slate-600 max-w-sm">
-            Please verify your Google Maps API key or quota settings. You can continue browsing all
-            listings and details in the list panel.
-          </p>
-        </div>
+      {useStreetMap ? (
+        <StreetMap
+          properties={properties}
+          hoveredId={hoveredPropertyId}
+          cameraTarget={cameraTarget}
+          onBoundsChange={onBoundsChange}
+          onHover={onHoverProperty}
+          onSelect={onSelectProperty}
+        />
       ) : (
         <GoogleMap
           mapId="DEMO_MAP_ID"
@@ -308,10 +311,10 @@ export const PropertyMap: React.FC<PropertyMapProps> = ({
             type="button"
             onClick={onResetNationalView}
             className="px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100 rounded cursor-pointer flex items-center gap-1"
-            title="View all US markets"
+            title="View all South Carolina markets"
           >
             <Compass className="w-3.5 h-3.5 text-[#006AFF]" />
-            <span>All US</span>
+            <span>All SC</span>
           </button>
           <span className="h-4 w-px bg-slate-200" />
           {MARKET_HUBS.slice(0, 5).map((hub) => (
@@ -340,7 +343,7 @@ export const PropertyMap: React.FC<PropertyMapProps> = ({
       </div>
 
       {/* Bottom-Left Map Layers Control */}
-      <div className="absolute bottom-4 left-3 z-10">
+      <div className={`absolute bottom-4 left-3 z-10 ${useStreetMap ? 'hidden' : ''}`}>
         {showLayersMenu && (
           <div className="mb-2 w-52 bg-white border border-slate-200 rounded-xl shadow-xl p-3 space-y-3">
             <div className="flex items-center justify-between">

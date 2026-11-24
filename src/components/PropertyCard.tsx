@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, EyeOff, Heart, Home } from 'lucide-react';
+import { TestReservation } from './TestReservation';
 import { Property } from '../types/realEstate';
 import { formatCurrency, HOME_TYPE_LABELS } from '../utils/propertyFilters';
 
@@ -162,6 +163,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
       {/* Card Body */}
       <div className="p-3.5 flex-1 flex flex-col justify-between">
         <div>
+          <TestReservation property={property} />
           <div className="flex items-baseline justify-between gap-2">
             <span className="text-lg font-bold text-slate-900 tabular-nums">
               {formatCurrency(property.price)}

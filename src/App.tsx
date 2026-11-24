@@ -26,8 +26,8 @@ import {
 import { filterProperties } from './utils/propertyFilters';
 
 const NATIONAL_CAMERA = {
-  center: { lat: 39.5, lng: -98.35 },
-  zoom: 4,
+  center: { lat: 33.85, lng: -80.9 },
+  zoom: 7,
 };
 
 export default function App() {
@@ -37,7 +37,7 @@ export default function App() {
   const [activeSection, setActiveSection] = useState<AppSection>('home');
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
   const [searchQuery, setSearchQuery] = useState('');
-  const [locationLabel, setLocationLabel] = useState('United States');
+  const [locationLabel, setLocationLabel] = useState('South Carolina');
 
   const [cameraTarget, setCameraTarget] = useState({
     center: NATIONAL_CAMERA.center,
@@ -56,8 +56,8 @@ export default function App() {
   const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([
     {
       id: 'ss-init-1',
-      name: 'Seattle 3+ Bed Homes',
-      locationLabel: 'Seattle, WA',
+      name: 'Charleston 3+ Bed Homes',
+      locationLabel: 'Charleston, SC',
       filters: { ...DEFAULT_FILTERS, status: 'for_sale', bedsMin: 3 },
       frequency: 'Daily',
       createdAt: '2026-11-20',
@@ -116,7 +116,7 @@ export default function App() {
         searchInBounds: false,
       }));
       if (patch.status) {
-        setLocationLabel('United States');
+        setLocationLabel('South Carolina');
       }
     },
     []
@@ -128,7 +128,7 @@ export default function App() {
 
   const handleResetFilters = useCallback(() => {
     setSearchQuery('');
-    setLocationLabel('United States');
+    setLocationLabel('South Carolina');
     setFilters((prev) => ({
       ...DEFAULT_FILTERS,
       status: prev.status,
@@ -149,7 +149,7 @@ export default function App() {
   }, []);
 
   const handleResetNationalView = useCallback(() => {
-    setLocationLabel('United States');
+    setLocationLabel('South Carolina');
     setSearchQuery('');
     setMapBounds(null);
     setCameraTarget((prev) => ({
@@ -198,7 +198,7 @@ export default function App() {
       priceMax: maxPrice,
       searchInBounds: false,
     }));
-    setLocationLabel('United States');
+    setLocationLabel('South Carolina');
     setActiveSection('buy');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
@@ -264,7 +264,7 @@ export default function App() {
     >
       <div id="top" className="min-h-screen flex flex-col bg-white text-slate-900">
         {/* Google Maps Demo Key Quota Banner */}
-        {quotaExceeded && (
+        {apiKey && quotaExceeded && (
           <div className="bg-amber-50 border-b border-amber-200 text-amber-900 px-4 py-2.5 text-xs md:text-sm text-center sticky top-0 z-50 shadow-sm">
             <span>
               Google Maps Platform quota reached. If you are the app owner, visit{' '}
@@ -463,7 +463,7 @@ export default function App() {
                             onClick={() => handleUpdateFilters({ searchInBounds: false })}
                             className="px-4 py-2 text-xs font-semibold text-white bg-[#006AFF] hover:bg-[#0051C3] rounded-lg cursor-pointer"
                           >
-                            Show all US listings
+                            Show all South Carolina listings
                           </button>
                         )}
                         <button

@@ -8,7 +8,7 @@ interface SellZestimateViewProps {
 }
 
 export const SellZestimateView: React.FC<SellZestimateViewProps> = ({ onNavigateAgents }) => {
-  const [address, setAddress] = useState('1420 Queen Anne Ave N, Seattle, WA 98109');
+  const [address, setAddress] = useState('120 Sample Palmetto St, Charleston, SC 29401');
   const [sqft, setSqft] = useState(2450);
   const [beds, setBeds] = useState(4);
   const [baths, setBaths] = useState(3);
